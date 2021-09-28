@@ -7,9 +7,9 @@ import shutil
 
 class Clean:
     # 属性：所有对象共享。
-    toady_format = arrow.utcnow().format("YYYYMMDD")
-    fiften_later = arrow.utcnow().shift(days=-15).format("YYYYMMDD")
-    full_toady_format = arrow.utcnow().format("YYYY-MM-DD HH:mm:ss")
+    toady_format = arrow.now('local').format("YYYYMMDD")
+    fiften_later = arrow.now('local').shift(days=-15).format("YYYYMMDD")
+    full_toady_format = arrow.now('local').format("YYYY-MM-DD HH:mm:ss")
 
     def __init__(self, root_dir, bak_file):
         self.root_dir = root_dir
