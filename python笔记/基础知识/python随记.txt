@@ -1,0 +1,9 @@
+python2中：
+   字符串与Unicode：
+   str
+   unicode
+
+   处理二进制数据：
+   str
+   bytes()
+

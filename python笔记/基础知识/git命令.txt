@@ -1,0 +1,11 @@
+git init    							#通过git init命令把目录变成Git可以管理的仓库（把文件修改添加到暂存区）
+git add     							#把文件添加到仓库（把暂存区的所有内容提交到当前分支）
+git commit -m "message"     			#把文件提交到仓库(-m 本次提交的说明)
+git status								#仓库当前的状态
+git log 								#显示从最近到最远的提交日志(--pretty=oneline简洁输出)
+git reset HEAD <file> 					#可以把暂存区的修改撤销掉
+git rm	<file>							#从版本库中删除该文件
+
+
+
+

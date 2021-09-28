@@ -1,0 +1,224 @@
+Django中文文档：  https://docs.djangoproject.com/zh-hans/3.2/intro/tutorial01/
+
+1.安装Django
+django-admin startproject mysite                   #创建一个mysite项目
+生成'''mysite/
+    manage.py
+    mysite/
+        __init__.py
+        settings.py
+        urls.py
+        asgi.py
+        wsgi.py'''
+最外层的 mysite/ 根目录只是你项目的容器， 根目录名称对 Django 没有影响，你可以将它重命名为任何你喜欢的名称。
+manage.py: 一个让你用各种方式管理 Django 项目的命令行工具。
+里面一层的 mysite/ 目录包含你的项目，它是一个纯 Python 包。它的名字就是当你引用它内部任何东西时需要用到的 Python 包名。
+mysite/__init__.py：一个空文件，告诉 Python 这个目录应该被认为是一个 Python 包。
+mysite/settings.py：Django 项目的配置文件。
+mysite/urls.py：Django 项目的 URL 声明，就像你网站的“目录”。
+mysite/asgi.py：作为你的项目的运行在 ASGI 兼容的 Web 服务器上的入口。
+mysite/wsgi.py：作为你的项目的运行在 WSGI 兼容的Web服务器上的入口。
+
+
+python manage.py runserver  127.0.0.1:8000      #运行项目
+python manage.py startapp polls                  #创建一个poll应用
+项目 VS 应用
+项目和应用有什么区别？应用是一个专门做某件事的网络应用程序——比如博客系统，或者公共记录的数据库，
+或者小型的投票程序。项目则是一个网站使用的配置和应用的集合。项目可以包含很多个应用。
+应用可以被很多个项目使用。
+会创建一个polls目录，目录结构如下
+polls/
+    __init__.py
+    admin.py
+    apps.py
+    models.py
+    tests.py
+    views.py
+    migrations/
+        __init__.py
+
+
+python manage.py migrate                        #执行数据迁移生成数据表
+python manage.py createsuperuser                #创建管理员账号 http://127.0.0.1:8002/admin/登录后台管理界面
+python -m django --version                      #查询django版本
+
+完成后需要在settings.py中
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'polls',                                    #需要在此处添加，激活，否则不生效
+]
+
+
+创建第一个视图：
+    设置polls/views.py
+    from django.http import HttpResponse
+
+    def index(request):
+        return HttpResponse("Hello, world. You're at the polls index.")
+
+    设置polls/urls.py
+    from django.urls import path
+    from . import views
+    urlpatterns = [
+        path('', views.index, name='index')
+    ]
+    # path()参数：router
+      route 是一个匹配 URL 的准则（类似正则表达式）。当 Django 响应一个请求时，
+      它会从 urlpatterns 的第一项开始，按顺序依次匹配列表中的项，直到找到匹配的项。
+      这些准则不会匹配 GET 和 POST 参数或域名。例如，URLconf 在处理请求
+       https://www.example.com/myapp/ 时，它会尝试匹配 myapp/ 。
+       处理请求 https://www.example.com/myapp/?page=3 时，也只会尝试匹配 myapp/。
+    #path() 参数： view
+    当 Django 找到了一个匹配的准则，就会调用这个特定的视图函数，并传入一个 HttpRequest 对象
+    作为第一个参数，被“捕获”的参数以关键字参数的形式传入。
+    #path() 参数： name
+    为你的 URL 取名能使你在 Django 的任意地方唯一地引用它，尤其是在模板中。
+    这个有用的特性允许你只改一个文件就能全局地修改某个 URL 模式。
+    path() 参数： kwargs¶
+    任意个关键字参数可以作为一个字典传递给目标视图函数。
+
+    设置mysite/urls.py
+    from django.contrib import admin
+    from django.urls import path,include
+
+    urlpatterns = [
+        path('admin/', admin.site.urls),
+        path('polls/', include('polls.urls'))
+    ]
+    访问：http://127.0.0.1:9000/polls/
+
+    # 函数 include() 允许引用其它 URLconfs。每当 Django 遇到 include() 时，
+    它会截断与此项匹配的 URL 的部分，并将剩余的字符串发送到 URLconf 以供进一步处理。
+
+
+在app1中添加数据模型（models）
+修改app1下的model
+...此处省略代码
+
+django.db.models提供的常见的字段类型
+AutoField:    一个ID自增字段，但创建表过程Django会自动添加一个自增的主键字段
+BinaryField:  一个保存二进制源数据的字段
+BooleanField: 一个布尔值的字段，应该指明默认值
+NullBooleanField:   可以为None的布尔值字段
+ChartField：  字符串值字段，必须指明参数max_length值
+TextField:    文本域字段，对于大量文本应该使用此字段
+DateField:    日期字段，代表Python中datetime.date的实例
+DateTimeField:      时间字段，代表Python中datetime.datetime的实例
+EmailField:   邮件字段，是ChartField的实现，用于检查该字段值是否符合邮件地址格式
+FileField:    文件上传字段
+ImageField:   图片上传字段，是FileField的实现
+IntegerField: 整数值字段
+FloatField:   浮点数值字段
+SlugField:    值保存字母和下划线和连接符，用于生成url标签
+UUIDField:    保存一般统一标识符字段
+ForeignKey:    外键关系字段
+ManyToManyField:    多对多关系字段，与ForeignKey类似
+OneToOneField: 一对一关系字段
+
+创建完数据模型后，开始做数据库迁移，首先我们不希望使用Django自带的SQLite数据库，我们想使用MySQL数据库，在项目的
+settings.py配置文件中找到如下配置
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+
+替换为：
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'demo',
+        'USER': 'root',
+        'PASSWORD': 'root'
+    }
+}
+使用Navicat连接数据库，使用utf8创建库demo
+使用IDEA安装pymysql模块
+修改项目目录下的__init__.py
+import pymysql
+pymysql.install_as_MySQLdb()  #提升性能
+
+polls/models.py
+from django.db import models
+class Question(models.Model):
+    question_text = models.CharField(max_length=200)
+    pub_date = models.DateTimeField('date published')
+class Choice(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    choice_text = models.CharField(max_length=200)
+    votes = models.IntegerField(default=0)
+
+激活模型
+执行：
+$ python manage.py makemigrations polls
+#运行 makemigrations 命令，Django 会检测你对模型文件的修改（在这种情况下，你已经取得了新的），
+并且把修改的部分储存为一次 迁移。迁移是 Django 对于模型定义（也就是你的数据库结构）的变化的储存形式 - 
+它们其实也只是一些你磁盘上的文件。如果你想的话，你可以阅读一下你模型的迁移数据，
+它被储存在 polls/migrations/0001_initial.py 里。
+
+产生如下结果：
+Migrations for 'polls':
+  polls\migrations\0001_initial.py
+    - Create model Question
+    - Create model Choice
+
+python manage.py sqlmigrate polls 0001
+#查看会执行的sql语句
+#主键(IDs)会被自动创建。
+====================
+--
+-- Create model Question
+--
+CREATE TABLE `polls_question` (`id` bigint AUTO_INCREMENT NOT NULL PRIMARY KEY, `question_text` varch
+ar(200) NOT NULL, `pub_date` datetime(6) NOT NULL);
+--
+-- Create model Choice
+--
+CREATE TABLE `polls_choice` (`id` bigint AUTO_INCREMENT NOT NULL PRIMARY KEY, `choice_text` varchar(2
+00) NOT NULL, `votes` integer NOT NULL, `question_id` bigint NOT NULL);
+ALTER TABLE `polls_choice` ADD CONSTRAINT `polls_choice_question_id_c5b4b260_fk_polls_question_id` FO
+REIGN KEY (`question_id`) REFERENCES `polls_question` (`id`);
+====================
+编辑 models.py 文件，改变模型。
+运行 python manage.py makemigrations 为模型的改变生成迁移文件。
+运行 python manage.py migrate 来应用数据库迁移。
+
+
+修改表中数据
+python manage shell    #使用改命令， Django 为你创建的各种 API。
+from polls.models import Choice, Question
+Question.objects.all()  #  查看Question中所有数据
+from django.utils import timezone 
+q = Question(question_text="What's new?", pub_date=timezone.now())
+#向数据库中添加数据，设置question_text字段和pub_date字段
+q.save()   #将对象保存到数据库中
+Question.objects.all()
+#objects.all() 显示数据库中的所有问题。
+返回<Question: Question object (1)> 
+
+#<Question: Question object (1)> 对于我们了解这个对象的细节没什么帮助。
+#让我们通过编辑 Question 模型的代码（位于 polls/models.py 中）来修复这个问题。
+#给 Question 和 Choice 增加 __str__() 方法。
+polls/models.py
+from django.db import models
+
+class Question(models.Model):
+    # ...
+    def __str__(self):
+        return self.question_text
+
+class Choice(models.Model):
+    # ...
+    def __str__(self):
+        return self.choice_text
+
+#给模型增加 __str__() 方法是很重要的，这不仅仅能给你在命令行里使用带来方便，Django 自动生成的 admin 
+里也使用这个方法来表示对象。
+
+
